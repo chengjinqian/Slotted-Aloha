@@ -14,12 +14,12 @@ import java.util.Random;
 import javax.swing.JFrame;
 
 public class Main extends JFrame {
-	public static int base = 1;
-	public int MaxStation = 0;
-	public final int randTime = 1000;
-	public int successPost = 1000;
-	public final int slot = 2;
-	public ArrayList<Data> list;
+	public static int base = 1;//站点基数
+	public int MaxStation = 0;//站点总数
+	public final int randTime = 1000;//用于产生随机时间
+	public int successPost = 1000;//成功发送上限
+	public final int slot = 2;//时隙大小
+	public ArrayList<Data> list;//存放发送数据包时间的集合
 	public Graphics g;
 	//Panel panel;
 
@@ -29,8 +29,8 @@ public class Main extends JFrame {
 
 	public void Rand() {
 		Random random = new Random();
-		int total = 0;
-		int success = 0;
+		int total = 0;//发送包总数初始化
+		int success = 0;//成功发送包数目初始化
 		list = new ArrayList<Data>();
 		for (int i = 0; i < MaxStation; i++) {
 			Data data = new Data(random.nextInt(randTime) + 1);
@@ -39,19 +39,19 @@ public class Main extends JFrame {
 
 		Comparator<Data> comparator = new Comparator<Data>() {
 			public int compare(Data d1, Data d2) {
-				return d1.time - d2.time;
+				return d1.time - d2.time;//计算两包发送相隔时间
 			}
 		};
 
-		Collections.sort(list, comparator);
+		Collections.sort(list, comparator);//对发送时间进行排序
 
-		int count = 0;
+		int count = 0;//记录经过的时间周期（时隙）
 		while (true) {
-			int temcount = 0;
+			int temcount = 0;//记录每个时隙内发送的帧数
 			for (int i = 0; i < MaxStation; i++) {
 				if (list.get(i).time >= count * slot
 						&& list.get(i).time <= (count + 1) * slot) {
-					total++;
+					total++;//遍历所有站点，记录每个时隙发送帧的个数
 					temcount++;
 				} else {
 					break;
@@ -61,7 +61,7 @@ public class Main extends JFrame {
 			if (temcount == 0) {
 				continue;
 			} else if (temcount == 1) {
-				success += 1;
+				success += 1;//如果某个时隙只有一个帧，那么成功次数加1，同时将此帧的发送时间向后随机推延整数个时隙
 				list.get(0)
 						.setTime(random.nextInt(randTime) + 1 + count * slot);
 				if (success > successPost) {
@@ -70,13 +70,13 @@ public class Main extends JFrame {
 			} else if (temcount > 1) {
 				for (int j = 0; j < temcount; j++) {
 					list.get(j).setTime(
-							random.nextInt(randTime) + 1 + count * slot);
+							random.nextInt(randTime) + 1 + count * slot);//如果时隙内有多个包，则遍历发生冲突的站点，重新设置发送包的时间
 				}
 			}
-			Collections.sort(list, comparator);
+			Collections.sort(list, comparator);//每个时隙内都要重新进行发送时间的排序
 
 		}
-		drawpoint((int)((1.0 * total/count)* 70 + 100), (int)(400-(10.0 * success/count)*29));
+		drawpoint((int)((1.0 * total/count)* 70 + 100), (int)(400-(10.0 * success/count)*29));//描点
 	}
 
 	public static void main(String args[]) {
@@ -99,7 +99,7 @@ public class Main extends JFrame {
 	}
 
 	public void draw(Graphics g) {
-		// TODO 自动生成的方法存根
+		//绘制坐标
 		g.setColor(Color.RED);
 		g.drawLine(100, 400, 500, 400);
 		g.drawLine(100, 100, 100, 400);
